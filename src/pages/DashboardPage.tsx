@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { TwilioService } from '@/services/twilioService';
 import { 
   Menu, 
   Phone, 
@@ -19,7 +21,9 @@ import {
   User,
   RefreshCw,
   PhoneIncoming,
-  PhoneOutgoing
+  PhoneOutgoing,
+  AlertCircle,
+  CheckCircle
 } from 'lucide-react';
 
 const DashboardPage = () => {
@@ -27,6 +31,9 @@ const DashboardPage = () => {
   const [isCallActive, setIsCallActive] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState('All Calls');
   const [userActivity, setUserActivity] = useState('Available');
+  const [currentCallSid, setCurrentCallSid] = useState<string | null>(null);
+  const [serverStatus, setServerStatus] = useState<boolean>(false);
+  const { toast } = useToast();
 
   const sidebarItems = [
     { icon: LayoutDashboard, label: 'Dashboard', active: true },
@@ -55,13 +62,104 @@ const DashboardPage = () => {
     { status: 'Total Login', count: 0 },
   ];
 
-  const handleMakeCall = () => {
-    if (phoneNumber.trim()) {
-      setIsCallActive(true);
-      setTimeout(() => {
+  // Check server health on component mount
+  useEffect(() => {
+    const checkServer = async () => {
+      const isHealthy = await TwilioService.checkServerHealth();
+      setServerStatus(isHealthy);
+      
+      if (!isHealthy) {
+        toast({
+          title: "Backend Server Offline",
+          description: "Please start the backend server to make calls. Run 'npm run server' in a separate terminal.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    checkServer();
+    // Check server health every 30 seconds
+    const interval = setInterval(checkServer, 30000);
+    return () => clearInterval(interval);
+  }, [toast]);
+
+  const handleMakeCall = async () => {
+    if (!phoneNumber.trim()) {
+      toast({
+        title: "Invalid Input",
+        description: "Please enter a valid phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!serverStatus) {
+      toast({
+        title: "Server Unavailable",
+        description: "Backend server is not running. Please start it first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCallActive(true);
+    
+    try {
+      const result = await TwilioService.makeCall(phoneNumber);
+      
+      if (result.success && result.callSid) {
+        setCurrentCallSid(result.callSid);
+        toast({
+          title: "Call Initiated",
+          description: `Calling ${result.to}... Call SID: ${result.callSid}`,
+        });
+        
+        // Monitor call status
+        const statusInterval = setInterval(async () => {
+          const statusResult = await TwilioService.getCallStatus(result.callSid!);
+          if (statusResult.success && statusResult.status) {
+            console.log('Call status:', statusResult.status);
+            
+            // Check if call is completed or failed
+            if (['completed', 'busy', 'no-answer', 'failed', 'canceled'].includes(statusResult.status)) {
+              clearInterval(statusInterval);
+              setIsCallActive(false);
+              setCurrentCallSid(null);
+              
+              toast({
+                title: "Call Ended",
+                description: `Call status: ${statusResult.status}`,
+                variant: statusResult.status === 'completed' ? 'default' : 'destructive',
+              });
+            }
+          }
+        }, 2000);
+
+        // Clear interval after 5 minutes to prevent infinite polling
+        setTimeout(() => {
+          clearInterval(statusInterval);
+          if (isCallActive) {
+            setIsCallActive(false);
+            setCurrentCallSid(null);
+          }
+        }, 300000); // 5 minutes
+
+      } else {
         setIsCallActive(false);
-        setPhoneNumber('');
-      }, 3000);
+        toast({
+          title: "Call Failed",
+          description: result.error || "Failed to initiate call",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      setIsCallActive(false);
+      console.error('Error making call:', error);
+      toast({
+        title: "Call Error",
+        description: "An unexpected error occurred while making the call",
+        variant: "destructive",
+      });
     }
   };
 
@@ -122,6 +220,20 @@ const DashboardPage = () => {
               <div className="flex items-center gap-3">
                 <Badge variant="secondary" className="bg-secondary-foreground/20">0</Badge>
                 <Badge variant="secondary" className="bg-secondary-foreground/20">200</Badge>
+                {/* Server Status Indicator */}
+                <div className="flex items-center gap-2">
+                  {serverStatus ? (
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Server Online
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="bg-red-500/20 text-red-400 border-red-500">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      Server Offline
+                    </Badge>
+                  )}
+                </div>
                 <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
                   <Bell className="w-5 h-5" />
                 </Button>
@@ -245,7 +357,7 @@ const DashboardPage = () => {
                     />
                     <Button 
                       onClick={handleMakeCall}
-                      disabled={!phoneNumber.trim() || isCallActive}
+                      disabled={!phoneNumber.trim() || isCallActive || !serverStatus}
                       variant={isCallActive ? "destructive" : "coral"}
                       className="w-full"
                     >
@@ -253,6 +365,11 @@ const DashboardPage = () => {
                         <>
                           <Phone className="w-4 h-4 animate-pulse" />
                           Calling... ({phoneNumber})
+                        </>
+                      ) : !serverStatus ? (
+                        <>
+                          <AlertCircle className="w-4 h-4" />
+                          Server Offline
                         </>
                       ) : (
                         <>
@@ -268,6 +385,11 @@ const DashboardPage = () => {
                         </div>
                         <p className="text-sm font-medium">Call in progress...</p>
                         <p className="text-xs text-muted-foreground">Connected to {phoneNumber}</p>
+                        {currentCallSid && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Call SID: {currentCallSid}
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
