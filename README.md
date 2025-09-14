@@ -1,165 +1,73 @@
-# VoiceBox Buddy - Twilio Integration
+# Welcome to your Lovable project
 
-A React-based dashboard application with Twilio outbound call functionality, built with Lovable.
+## Project info
 
-## Features
+**URL**: https://lovable.dev/projects/d0b9d3fa-12dd-42cf-8ad9-813ef2afa922
 
-- **Real-time Dashboard**: Interactive dashboard with call statistics and management
-- **Twilio Integration**: Make outbound calls using Twilio API
-- **Server Status Monitoring**: Real-time backend server health monitoring
-- **Call Status Tracking**: Monitor call progress and status updates
-- **Modern UI**: Built with shadcn/ui components and Tailwind CSS
+## How can I edit this code?
 
-## Prerequisites
+There are several ways of editing your application.
 
-- Node.js (v16 or higher)
-- npm or yarn
-- Twilio Account with:
-  - Account SID
-  - Auth Token
-  - Verified Phone Number
+**Use Lovable**
 
-## Setup Instructions
+Simply visit the [Lovable Project](https://lovable.dev/projects/d0b9d3fa-12dd-42cf-8ad9-813ef2afa922) and start prompting.
 
-### 1. Install Dependencies
+Changes made via Lovable will be committed automatically to this repo.
 
-```bash
-npm install
-```
+**Use your preferred IDE**
 
-### 2. Configure Twilio Credentials
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-The Twilio credentials are already configured in the `.env` file:
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-```
-TWILIO_ACCOUNT_SID=ACf511c147392551501d5897c5694b44bb
-TWILIO_AUTH_TOKEN=6253ffd99c5566c709784703ba001e7b
-TWILIO_NUMBER=+16163104535
-```
+Follow these steps:
 
-### 3. Start the Backend Server
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
 
-In one terminal, start the Twilio backend server:
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
 
-```bash
-npm run server
-```
+# Step 3: Install the necessary dependencies.
+npm i
 
-The server will start on `http://localhost:3001`
-
-### 4. Start the Frontend
-
-In another terminal, start the React development server:
-
-```bash
+# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-The frontend will start on `http://localhost:8080`
+**Edit a file directly in GitHub**
 
-### 5. Alternative: Start Both Together
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-You can also start both frontend and backend together:
+**Use GitHub Codespaces**
 
-```bash
-npm run dev:full
-```
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## Usage
+## What technologies are used for this project?
 
-1. **Open the Dashboard**: Navigate to `http://localhost:8080/dashboard`
-2. **Check Server Status**: The dashboard shows a server status indicator in the top-right
-3. **Make a Call**: 
-   - Enter a phone number in the format `+1234567890` or `1234567890`
-   - Click "Make Call" button
-   - Monitor the call status in real-time
+This project is built with:
 
-## API Endpoints
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-### Backend Server (`http://localhost:3001`)
+## How can I deploy this project?
 
-- `GET /health` - Check server health
-- `POST /api/make-call` - Make an outbound call
-  ```json
-  {
-    "phoneNumber": "+1234567890"
-  }
-  ```
-- `GET /api/call-status/:callSid` - Get call status
+Simply open [Lovable](https://lovable.dev/projects/d0b9d3fa-12dd-42cf-8ad9-813ef2afa922) and click on Share -> Publish.
 
-## Project Structure
+## Can I connect a custom domain to my Lovable project?
 
-```
-voicebox-buddy/
-├── src/
-│   ├── components/          # React components
-│   ├── pages/              # Page components
-│   ├── services/           # API services
-│   └── ...
-├── server.js               # Backend server
-├── .env                    # Environment variables
-└── package.json           # Dependencies
-```
+Yes, you can!
 
-## Features Implemented
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-✅ **Backend Server**: Express.js server with Twilio integration  
-✅ **API Endpoints**: RESTful endpoints for call management  
-✅ **Frontend Integration**: React dashboard with real-time updates  
-✅ **Error Handling**: Comprehensive error handling and user feedback  
-✅ **Server Monitoring**: Real-time server health checks  
-✅ **Call Status Tracking**: Monitor call progress and completion  
-✅ **Toast Notifications**: User-friendly notifications for all actions  
-
-## Troubleshooting
-
-### Server Offline Error
-If you see "Server Offline" in the dashboard:
-1. Make sure the backend server is running (`npm run server`)
-2. Check that port 3001 is not being used by another application
-3. Verify the server logs for any error messages
-
-### Call Failed Error
-If calls are failing:
-1. Verify your Twilio credentials in `.env`
-2. Ensure your Twilio account has sufficient balance
-3. Check that the phone number is in the correct format
-4. Verify the Twilio number is properly configured
-
-### CORS Issues
-If you encounter CORS errors:
-1. Make sure you're accessing the frontend from `http://localhost:8080`
-2. The backend server is configured to allow CORS from the frontend
-
-## Development
-
-### Available Scripts
-
-- `npm run dev` - Start frontend development server
-- `npm run server` - Start backend server
-- `npm run dev:full` - Start both frontend and backend
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint
-
-### Environment Variables
-
-Create a `.env` file in the root directory with:
-
-```
-TWILIO_ACCOUNT_SID=your_account_sid
-TWILIO_AUTH_TOKEN=your_auth_token
-TWILIO_NUMBER=your_twilio_number
-PORT=3001
-NODE_ENV=development
-```
-
-## Security Notes
-
-- Never commit your `.env` file to version control
-- The Twilio credentials are exposed in this example for demonstration purposes
-- In production, use environment variables or a secure secrets management system
-- Consider implementing authentication and authorization for the API endpoints
-
-## License
-
-This project is for demonstration purposes. Please ensure you comply with Twilio's terms of service and applicable regulations when making calls.
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
