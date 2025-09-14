@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { Menu, X, Globe, ChevronDown } from 'lucide-react';
 
 const Header = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
@@ -83,7 +85,7 @@ const Header = () => {
             <Button variant="coral" size="sm">
               Click to contact
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => navigate('/signin')}>
               Sign In
             </Button>
           </div>
@@ -116,7 +118,7 @@ const Header = () => {
               <Button variant="coral" size="sm">
                 Click to contact
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => navigate('/signin')}>
                 Sign In
               </Button>
             </div>
